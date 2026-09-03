@@ -1,0 +1,7 @@
+.thing {
+  transition: width 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thing { transition: none; }
+}

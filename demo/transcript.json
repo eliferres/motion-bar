@@ -1,0 +1,12 @@
+[
+  {
+    "cmd": "python3 motion_bar.py demo/slop.css demo/slop.html",
+    "out": "motion-bar report\ntarget: demo/slop.css, demo/slop.html\nease-in: FAIL\n  - [1] ease-in easing\n      found: transition: opacity 200ms ease-in;\n  - [6] 900ms exceeds the modal ceiling of 500ms and the 700ms hard ceiling\n      found: transition: transform 900ms ease-out;\n      at:    demo/slop.css:32\nFAIL: 13 finding(s) across 11 rules (7 blocking)",
+    "status": 1
+  },
+  {
+    "cmd": "python3 motion_bar.py demo/clean.css",
+    "out": "motion-bar report\ntarget: demo/clean.css\nno-reduced-motion: PASS\nPASS: 0 finding(s) across 11 rules (0 blocking)",
+    "status": 0
+  }
+]

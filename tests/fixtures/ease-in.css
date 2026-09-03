@@ -1,0 +1,7 @@
+.thing {
+  transition: opacity 200ms ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thing { transition: none; }
+}

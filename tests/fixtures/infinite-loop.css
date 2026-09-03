@@ -1,0 +1,12 @@
+.thing {
+  animation: driftAway 250ms ease-out infinite;
+}
+
+@keyframes driftAway {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thing { animation: none; }
+}

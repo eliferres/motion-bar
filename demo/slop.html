@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+<style>
+  /* scale-zero-prop: a property value shaped like an entrance state */
+  .badge-variant { scale: 0; transition: transform 150ms ease-out; }
+</style>
+</head>
+<body>
+  <button class="shortcut-hint" data-hotkey="cmd+k">
+    Open command palette
+  </button>
+  <script type="text/jsx">
+    // framer-shorthand: x/y run on the main thread, not the GPU
+    <motion.div animate={{ x: 40, opacity: 1 }} />
+  </script>
+</body>
+</html>
