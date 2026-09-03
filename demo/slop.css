@@ -1,0 +1,48 @@
+/* Six deliberate violations, one per rule below. Extra rules may also
+   fire on the same lines: that overlap is realistic, not a bug here. */
+
+.modal-panel {
+  /* 1: ease-in */
+  transition: opacity 200ms ease-in;
+}
+
+.card {
+  /* 2: transition-all */
+  transition: all 250ms ease-out;
+}
+
+.toast-enter {
+  /* 3: scale-zero */
+  transform: scale(0);
+  transition: transform 200ms ease-out;
+}
+
+.list-row:hover {
+  /* 4: high-frequency-animation, a hover state fired dozens of times a day */
+  animation: rowPulse 300ms ease-in-out;
+}
+
+.sidebar {
+  /* 5: layout-prop, animating width instead of transform */
+  transition: width 300ms ease-in-out;
+}
+
+.modal-dialog {
+  /* 6: duration-ceiling, 900ms is past both the modal ceiling and the hard max */
+  transition: transform 900ms ease-out;
+}
+
+.auto-loop {
+  /* bonus: infinite-loop outside a loader keyword */
+  animation: driftAway 2s linear infinite;
+}
+
+@keyframes rowPulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+@keyframes driftAway {
+  from { opacity: 1; }
+  to { opacity: 0.4; }
+}

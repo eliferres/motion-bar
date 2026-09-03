@@ -1,0 +1,7 @@
+.thing {
+  transition: transform 200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thing { transition: none; }
+}

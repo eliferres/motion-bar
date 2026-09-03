@@ -1,0 +1,39 @@
+/* Clears every rule in config/rules.json. */
+
+.button {
+  transition: transform 140ms ease-out;
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.tooltip {
+  transition: opacity 160ms ease-out, transform 160ms ease-out;
+}
+
+.modal-dialog {
+  transition: opacity 220ms ease-out, transform 220ms ease-out;
+  transform-origin: center;
+}
+
+.toast-enter {
+  transform: scale(0.94);
+  opacity: 0;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+
+.progress-bar {
+  animation: fill 1.4s linear infinite;
+}
+
+@keyframes fill {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button, .tooltip, .modal-dialog, .toast-enter {
+    transition: none;
+  }
+}

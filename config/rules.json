@@ -1,0 +1,36 @@
+{
+  "_comment": "Numeric ceilings and selector lists behind each rule, with a one-line why. Rules informed by Emil Kowalski's published animation guidance (see README credits).",
+  "duration_ceilings_ms": {
+    "_why": "a control used often needs a lower cap than one used rarely, since the wait adds up across many uses of the same control",
+    "button": 160,
+    "tooltip": 200,
+    "dropdown": 250,
+    "modal": 500,
+    "default": 300
+  },
+  "hard_max_ms": 700,
+  "hard_max_why": "beyond this length, whatever the intent was, the viewer just experiences a pause with no clear cause",
+  "kind_selectors": {
+    "_why": "keyword hints found in the surrounding markup used to pick which ceiling applies",
+    "button": ["btn", "button", "press"],
+    "tooltip": ["tooltip", "popover"],
+    "dropdown": ["dropdown", "select", "combobox", "menu"],
+    "modal": ["modal", "dialog", "drawer", "sheet"]
+  },
+  "high_frequency_selectors": {
+    "_why": "an interaction repeated this often turns its own animation into cumulative waiting time, so removing the motion beats trimming its length",
+    "keywords": [
+      "shortcut", "hotkey", "kbd", "keydown",
+      "command-palette", "cmdk", "cmd-k", "palette",
+      "list-row", "row-hover", "row:hover", "table-row"
+    ]
+  },
+  "constant_motion_selectors": {
+    "_why": "a flat, unchanging rate only matches motion that has no start or finish to accelerate toward",
+    "keywords": ["marquee", "progress", "spinner", "loader", "loading", "skeleton", "ticker"]
+  },
+  "loader_selectors": {
+    "_why": "only a state with no known finish time, like a wait for a network response, calls for a loop with no stop condition",
+    "keywords": ["loader", "spinner", "skeleton", "loading", "progress", "pulse"]
+  }
+}
