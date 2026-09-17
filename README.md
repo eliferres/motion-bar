@@ -4,7 +4,7 @@ Motion is the first thing a page gets wrong and the last thing anyone reviews. m
 
 ![ci](https://github.com/eliferres/motion-bar/actions/workflows/ci.yml/badge.svg)
 
-<img src="demo/terminal.svg" width="660" alt="Terminal session showing motion-bar grading the demo page, rule by rule, with the exact line that tripped each rule.">
+<img src="demo/terminal.svg" width="660" alt="Terminal session showing motion-bar scanning one demo file: every rule reports, two warn, one fails, and the run ends on a FAIL summary of four findings.">
 
 ## Quick start
 
@@ -33,14 +33,60 @@ because a planted violation can overlap another rule's check, for
 
 ## What a failing scan looks like
 
-Run the failing pair:
+Start with one file. Every rule reports, and the ones that fired name the
+exact string that tripped them:
+
+```bash
+python3 -m motion_bar demo/slop.html
+```
+
+```text
+motion-bar report
+target: demo/slop.html
+
+ease-in: PASS
+
+transition-all: PASS
+
+scale-zero: PASS
+
+scale-zero-prop: WARN
+  - [4] scale: 0 as a property value
+      found: .badge-variant { scale: 0; transition: transform 150ms ease-out; }
+      at:    demo/slop.html:6
+
+layout-prop: PASS
+
+duration-ceiling: PASS
+
+linear-easing: PASS
+
+high-frequency-animation: FAIL
+  - [8] animation on an element triggered 100+ times a day (keyboard shortcut, palette, row hover): remove it
+      found: <motion.div animate={{ x: 40, opacity: 1 }} />
+      at:    demo/slop.html:15
+
+infinite-loop: PASS
+
+framer-shorthand: WARN
+  - [10] Framer Motion x/y shorthand
+      found: <motion.div animate={{ x: 40, opacity: 1 }} />
+      at:    demo/slop.html:15
+
+no-reduced-motion: WARN
+  - [11] motion exists in the scanned set but prefers-reduced-motion appears nowhere
+      at:    (scanned set)
+
+FAIL: 4 finding(s) across 11 rules (1 blocking)
+```
+
+Now the failing pair:
 
 ```bash
 python3 -m motion_bar demo/slop.css demo/slop.html
 ```
 
-Each rule prints its own PASS/WARN/FAIL block, with the exact string
-that tripped it:
+The same block per rule, with the CSS violations added:
 
 ```text
 motion-bar report

@@ -16,6 +16,8 @@
   a scan makes.
 - The demo transcript and the terminal picture now hold the full output of a
   real run, and a test replays the commands to keep them that way.
+- The walkthrough opens with a scan of a single file, so the picture shows one
+  whole run, verdict line included, instead of a report cut off part way.
 
 ### Changed
 
