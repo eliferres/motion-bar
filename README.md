@@ -4,7 +4,7 @@ Motion is the first thing a page gets wrong and the last thing anyone reviews. m
 
 ![ci](https://github.com/eliferres/motion-bar/actions/workflows/ci.yml/badge.svg)
 
-<img src="demo/terminal.svg" width="660" alt="Terminal session showing motion-bar failing a page on eleven named rules, then a clean page passing all of them.">
+<img src="demo/terminal.svg" width="660" alt="Terminal session showing motion-bar grading the demo page, rule by rule, with the exact line that tripped each rule.">
 
 ## Quick start
 
