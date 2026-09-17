@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Added
+
+- Installable with pipx or pip from the repository, giving a `motion-bar`
+  command that carries its default rules with it.
+- `--version` prints the version and exits 0.
+
 ### Changed
 
 - `motion_bar.py` and `config/rules.json` are now the package `motion_bar/`,
