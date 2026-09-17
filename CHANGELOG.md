@@ -18,6 +18,9 @@
   real run, and a test replays the commands to keep them that way.
 - The walkthrough opens with a scan of a single file, so the picture shows one
   whole run, verdict line included, instead of a report cut off part way.
+- The demo picture no longer cuts its long lines off at the right edge: rows
+  wider than the box ran past it mid-word with no ellipsis. Only the drawing
+  changed; the recorded session is untouched.
 
 ### Changed
 

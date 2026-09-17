@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 908" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="20">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 800" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="16">
   <title id="t">motion-bar demo terminal</title>
   <desc id="d">Terminal session showing motion-bar scanning one demo file: every rule reports, two warn, one fails, and the run ends on a FAIL summary of four findings.</desc>
   <style>
@@ -8,37 +8,37 @@
     .bad { fill: #ff9494; }
     .good { fill: #7ee2a8; }
   </style>
-  <rect width="660" height="908" rx="14" fill="#0b0f14"/>
+  <rect width="660" height="800" rx="14" fill="#0b0f14"/>
   <rect width="660" height="40" rx="14" fill="#11161d"/>
   <rect y="26" width="660" height="14" fill="#11161d"/>
   <circle cx="26" cy="20" r="6" fill="#ff5f57"/>
   <circle cx="48" cy="20" r="6" fill="#febc2e"/>
   <circle cx="70" cy="20" r="6" fill="#28c840"/>
   <text x="92" y="26" class="dim" font-size="14">motion-bar</text>
-  <text x="24" y="80"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 -m motion_bar demo/slop.html</tspan></text>
-  <text x="24" y="112" class="dim">motion-bar report</text>
-  <text x="24" y="144" class="dim">target: demo/slop.html</text>
-  <text x="24" y="176" class="good">ease-in: PASS</text>
-  <text x="24" y="208" class="good">transition-all: PASS</text>
-  <text x="24" y="240" class="good">scale-zero: PASS</text>
-  <text x="24" y="272" class="dim">scale-zero-prop: WARN</text>
-  <text x="24" y="304" class="dim">  - [4] scale: 0 as a property value</text>
-  <text x="24" y="336" class="dim">      found: .badge-variant { scale: 0; transition: transfo…</text>
-  <text x="24" y="368" class="dim">      at:    demo/slop.html:6</text>
-  <text x="24" y="400" class="good">layout-prop: PASS</text>
-  <text x="24" y="432" class="good">duration-ceiling: PASS</text>
-  <text x="24" y="464" class="good">linear-easing: PASS</text>
-  <text x="24" y="496" class="bad">high-frequency-animation: FAIL</text>
-  <text x="24" y="528" class="dim">  - [8] animation on an element triggered 100+ times a day…</text>
-  <text x="24" y="560" class="dim">      found: &lt;motion.div animate={{ x: 40, opacity: 1 }} /&gt;</text>
-  <text x="24" y="592" class="dim">      at:    demo/slop.html:15</text>
-  <text x="24" y="624" class="good">infinite-loop: PASS</text>
-  <text x="24" y="656" class="dim">framer-shorthand: WARN</text>
-  <text x="24" y="688" class="dim">  - [10] Framer Motion x/y shorthand</text>
-  <text x="24" y="720" class="dim">      found: &lt;motion.div animate={{ x: 40, opacity: 1 }} /&gt;</text>
-  <text x="24" y="752" class="dim">      at:    demo/slop.html:15</text>
-  <text x="24" y="784" class="dim">no-reduced-motion: WARN</text>
-  <text x="24" y="816" class="dim">  - [11] motion exists in the scanned set but prefers-reduc…</text>
-  <text x="24" y="848" class="dim">      at:    (scanned set)</text>
-  <text x="24" y="880" class="bad">FAIL: 4 finding(s) across 11 rules (1 blocking)</text>
+  <text x="24" y="72"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 -m motion_bar demo/slop.html</tspan></text>
+  <text x="24" y="100" class="dim">motion-bar report</text>
+  <text x="24" y="128" class="dim">target: demo/slop.html</text>
+  <text x="24" y="156" class="good">ease-in: PASS</text>
+  <text x="24" y="184" class="good">transition-all: PASS</text>
+  <text x="24" y="212" class="good">scale-zero: PASS</text>
+  <text x="24" y="240" class="dim">scale-zero-prop: WARN</text>
+  <text x="24" y="268" class="dim">  - [4] scale: 0 as a property value</text>
+  <text x="24" y="296" class="dim">      found: .badge-variant { scale: 0; transition: transfo…</text>
+  <text x="24" y="324" class="dim">      at:    demo/slop.html:6</text>
+  <text x="24" y="352" class="good">layout-prop: PASS</text>
+  <text x="24" y="380" class="good">duration-ceiling: PASS</text>
+  <text x="24" y="408" class="good">linear-easing: PASS</text>
+  <text x="24" y="436" class="bad">high-frequency-animation: FAIL</text>
+  <text x="24" y="464" class="dim">  - [8] animation on an element triggered 100+ times a day…</text>
+  <text x="24" y="492" class="dim">      found: &lt;motion.div animate={{ x: 40, opacity: 1 }} /&gt;</text>
+  <text x="24" y="520" class="dim">      at:    demo/slop.html:15</text>
+  <text x="24" y="548" class="good">infinite-loop: PASS</text>
+  <text x="24" y="576" class="dim">framer-shorthand: WARN</text>
+  <text x="24" y="604" class="dim">  - [10] Framer Motion x/y shorthand</text>
+  <text x="24" y="632" class="dim">      found: &lt;motion.div animate={{ x: 40, opacity: 1 }} /&gt;</text>
+  <text x="24" y="660" class="dim">      at:    demo/slop.html:15</text>
+  <text x="24" y="688" class="dim">no-reduced-motion: WARN</text>
+  <text x="24" y="716" class="dim">  - [11] motion exists in the scanned set but prefers-reduc…</text>
+  <text x="24" y="744" class="dim">      at:    (scanned set)</text>
+  <text x="24" y="772" class="bad">FAIL: 4 finding(s) across 11 rules (1 blocking)</text>
 </svg>
