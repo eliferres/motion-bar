@@ -16,6 +16,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Which rules block is now decided in one place, so the report and the
   documented list cannot drift apart. The README names the blocking rules.
+- A scanned file is read from disk once instead of twice, halving the reads
+  a scan makes.
 
 ### Changed
 
