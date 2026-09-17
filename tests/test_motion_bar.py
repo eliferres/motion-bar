@@ -1,4 +1,4 @@
-"""Runs the real CLI over real fixtures, no mocks.
+"""Runs the real CLI over real fixtures.
 
 Every rule test uses two files: tests/fixtures/clean.css (clears every
 rule) as the pass case, and a fixture that plants exactly one violation
@@ -12,6 +12,8 @@ import os
 import subprocess
 import sys
 import unittest
+import unittest.mock
+from collections import Counter
 from pathlib import Path
 from typing import Optional
 
@@ -158,6 +160,26 @@ class TestBlockingRules(unittest.TestCase):
                     expected = rule in self.DOCUMENTED
                 self.assertEqual(finding["blocking"], expected,
                                  f"{rule}: {finding['message']}")
+
+
+class TestFilesAreReadOnce(unittest.TestCase):
+    """A scan of a file reads it from disk once. This one test calls the
+    scanner in process, counting the real reads it makes."""
+
+    def test_each_scanned_file_is_read_once(self) -> None:
+        cfg = motion_bar.load_rules(motion_bar.DEFAULT_RULES_PATH)
+        files = [ROOT / "demo" / "slop.css", ROOT / "demo" / "slop.html"]
+        reads: Counter = Counter()
+        real_read_text = Path.read_text
+
+        def counting_read_text(self: Path, *args, **kwargs) -> str:
+            reads[str(self)] += 1
+            return real_read_text(self, *args, **kwargs)
+
+        with unittest.mock.patch.object(Path, "read_text", counting_read_text):
+            motion_bar.run_scan(files, cfg)
+        for path in files:
+            self.assertEqual(reads[str(path)], 1, f"{path} was read {reads[str(path)]} times")
 
 
 class TestConstantMotionIsExempt(unittest.TestCase):

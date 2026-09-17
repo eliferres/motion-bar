@@ -271,9 +271,7 @@ def scan_reduced_motion(files_text: dict) -> Iterator[Finding]:
         yield Finding("no-reduced-motion", why, "", "(scanned set)", 0)
 
 
-def scan_file(path: Path, cfg: dict) -> list:
-    raw = path.read_text(encoding="utf-8", errors="replace")
-    text = strip_comments(raw)
+def scan_file(path: Path, raw: str, text: str, cfg: dict) -> list:
     p = str(path)
     findings = []
     findings += list(scan_simple("ease-in", EASE_IN, RULE_TITLES["ease-in"], p, raw, text))
@@ -310,8 +308,9 @@ def run_scan(files: list, cfg: dict) -> list:
     files_text = {}
     for path in files:
         raw = path.read_text(encoding="utf-8", errors="replace")
-        files_text[str(path)] = strip_comments(raw)
-        all_findings += scan_file(path, cfg)
+        text = strip_comments(raw)
+        files_text[str(path)] = text
+        all_findings += scan_file(path, raw, text, cfg)
     all_findings += list(scan_reduced_motion(files_text))
     return dedupe(all_findings)
 
