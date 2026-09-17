@@ -31,7 +31,7 @@ plant six violations on purpose; the actual run trips eleven rules,
 because a planted violation can overlap another rule's check, for
 13 findings in total, and exit 1.
 
-## The walkthrough
+## What a failing scan looks like
 
 Run the failing pair:
 
@@ -81,7 +81,7 @@ git diff --name-only origin/main...HEAD > /tmp/changed.txt
 python3 -m motion_bar --changed /tmp/changed.txt
 ```
 
-## The rules
+## Rules
 
 Every ceiling and selector list below lives in `motion_bar/rules.json`, not
 in the code, so grading a different codebase means editing numbers, not
@@ -110,7 +110,7 @@ other rule warns. Any finding, blocking or not, exits 1.
 Rules informed by Emil Kowalski's published animation guidance
 (github.com/emilkowalski/skills, MIT License; see `NOTICE`).
 
-## Wiring it into CI
+## In CI
 
 ```yaml
 - name: motion-bar
