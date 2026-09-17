@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import unittest
@@ -137,16 +138,27 @@ class TestKeyframesLayoutProp(unittest.TestCase):
         self.assertTrue(any("slop.css" in f["file"] for f in findings))
 
 
+def documented_blocking_rules() -> set:
+    """The rule names the README's blocking sentence lists, read out of the
+    README so the test checks the documentation, not a copy of it."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    sentence = re.search(r"rules block.*?WARN:(.*?)\.", readme, re.S)
+    if sentence is None:
+        raise AssertionError("README has no sentence naming the blocking rules")
+    return set(re.findall(r"`([\w-]+)`", sentence.group(1)))
+
+
 class TestBlockingRules(unittest.TestCase):
     """Which rules block is decided by BLOCKING_RULES alone, and that set is
     the list the README documents."""
 
-    DOCUMENTED = {"ease-in", "transition-all", "scale-zero", "high-frequency-animation"}
+    def setUp(self) -> None:
+        self.documented = documented_blocking_rules()
 
-    def test_blocking_rules_constant_is_the_documented_list(self) -> None:
-        self.assertEqual(motion_bar.BLOCKING_RULES, self.DOCUMENTED)
+    def test_blocking_rules_constant_matches_the_readme(self) -> None:
+        self.assertEqual(motion_bar.BLOCKING_RULES, self.documented)
 
-    def test_reported_blocking_matches_the_documented_list(self) -> None:
+    def test_reported_blocking_matches_the_readme(self) -> None:
         report = run_json(FIXTURES)
         report["rules"]["no-reduced-motion"] = run_json(
             FIXTURES / "no-reduced-motion.css")["rules"]["no-reduced-motion"]
@@ -157,7 +169,7 @@ class TestBlockingRules(unittest.TestCase):
                     # the one rule whose blocking depends on the measured value
                     expected = "hard ceiling" in finding["message"]
                 else:
-                    expected = rule in self.DOCUMENTED
+                    expected = rule in self.documented
                 self.assertEqual(finding["blocking"], expected,
                                  f"{rule}: {finding['message']}")
 
