@@ -101,6 +101,12 @@ regexes.
 | 10 | `framer-shorthand` | Framer Motion's `x`/`y`/`scale` props are recalculated in JavaScript on every animation frame instead of being handed off to the compositor, so they compete with the page's other script work for frame time | performance |
 | 11 | `no-reduced-motion` | nothing in the scanned files checks the OS-level setting a viewer uses to ask for less motion, so that viewer gets the same animation as everyone else regardless of what they asked their system for | accessibility |
 
+Four rules block, which is what makes a rule report FAIL rather than
+WARN: `ease-in`, `transition-all`, `scale-zero`, and
+`high-frequency-animation`. `duration-ceiling` blocks only when the
+duration is past the hard ceiling in `motion_bar/rules.json`; every
+other rule warns. Any finding, blocking or not, exits 1.
+
 Rules informed by Emil Kowalski's published animation guidance
 (github.com/emilkowalski/skills, MIT License; see `NOTICE`).
 
