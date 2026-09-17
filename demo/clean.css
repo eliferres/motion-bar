@@ -1,4 +1,4 @@
-/* Clears every rule in config/rules.json. */
+/* Clears every rule in motion_bar/rules.json. */
 
 .button {
   transition: transform 140ms ease-out;

@@ -2,7 +2,7 @@ motion-bar
 Copyright (c) 2026 Eli Ferres
 
 The numeric ceilings, easing rules, and frequency table encoded in
-config/rules.json are informed by Emil Kowalski's published animation
+motion_bar/rules.json are informed by Emil Kowalski's published animation
 guidance (https://github.com/emilkowalski/skills, MIT License). No prose
 from that repository is reproduced here; motion-bar re-implements the
 rules as its own configuration and its own detection code.

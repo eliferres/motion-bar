@@ -8,6 +8,7 @@ back for that rule, read from --json.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import unittest
@@ -15,15 +16,15 @@ from pathlib import Path
 from typing import Optional
 
 ROOT = Path(__file__).parent.parent
-SCRIPT = ROOT / "motion_bar.py"
 FIXTURES = Path(__file__).parent / "fixtures"
 CLEAN = FIXTURES / "clean.css"
 
 
 def run(args: list, cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+    env = dict(os.environ, PYTHONPATH=str(ROOT))  # the package runs from any cwd
     return subprocess.run(
-        [sys.executable, str(SCRIPT), *args],
-        capture_output=True, text=True, cwd=str(cwd or ROOT),
+        [sys.executable, "-m", "motion_bar", *args],
+        capture_output=True, text=True, cwd=str(cwd or ROOT), env=env,
     )
 
 

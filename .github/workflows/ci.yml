@@ -21,5 +21,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Grade the demo files
         run: |
-          python motion_bar.py demo/clean.css
-          ! python motion_bar.py demo/slop.css demo/slop.html
+          python -m motion_bar demo/clean.css
+          ! python -m motion_bar demo/slop.css demo/slop.html

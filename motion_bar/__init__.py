@@ -1,18 +1,17 @@
-#!/usr/bin/env python3
 """Scan UI code for the motion violations a design review would flag.
 
 Eleven named rules, each machine-checkable from source: no rendering, no
 browser, no JavaScript execution. Every finding names the file, the line,
 and the exact offending string. Rules informed by Emil Kowalski's
 published animation guidance (see README credits); the numeric ceilings
-and selector lists live in config/rules.json, not in this file.
+and selector lists live in motion_bar/rules.json, not in this file.
 
 Stdlib only, Python 3.9+. Exit 0 on a clean scan, 1 on any finding,
 2 on a usage error.
 
 Usage:
-    python3 motion_bar.py <paths...> [--rules config/rules.json] [--json]
-    python3 motion_bar.py --changed files.txt [--rules ...] [--json]
+    python3 -m motion_bar <paths...> [--rules rules.json] [--json]
+    python3 -m motion_bar --changed files.txt [--rules ...] [--json]
 """
 from __future__ import annotations
 
@@ -23,7 +22,7 @@ import sys
 from pathlib import Path
 from typing import Iterator, Optional
 
-DEFAULT_RULES_PATH = Path(__file__).parent / "config" / "rules.json"
+DEFAULT_RULES_PATH = Path(__file__).parent / "rules.json"
 UI_EXT = {".css", ".scss", ".less", ".sass", ".html", ".htm", ".js", ".jsx",
           ".ts", ".tsx", ".mjs", ".cjs", ".vue", ".svelte"}
 SKIP_DIRS = {"node_modules", "dist", "build", ".next", ".git", "vendor", "coverage"}
@@ -380,7 +379,3 @@ def main() -> None:
     else:
         print(build_report(files, findings))
     sys.exit(1 if findings else 0)
-
-
-if __name__ == "__main__":
-    main()
