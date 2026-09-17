@@ -18,6 +18,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   documented list cannot drift apart. The README names the blocking rules.
 - A scanned file is read from disk once instead of twice, halving the reads
   a scan makes.
+- The demo transcript and the terminal picture now hold the full output of a
+  real run, and a test replays the commands to keep them that way.
 
 ### Changed
 

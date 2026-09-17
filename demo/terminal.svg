@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 556" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="20">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 972" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="20">
   <title id="t">motion-bar demo terminal</title>
-  <desc id="d">Terminal session showing motion-bar failing a page on eleven named rules, then a clean page passing all of them.</desc>
+  <desc id="d">Terminal session showing motion-bar grading the demo page, rule by rule, with the exact line that tripped each rule.</desc>
   <style>
     .p { fill: #7ee2a8; }
     .cmd { fill: #e8eef5; }
@@ -8,26 +8,39 @@
     .bad { fill: #ff9494; }
     .good { fill: #7ee2a8; }
   </style>
-  <rect width="660" height="556" rx="14" fill="#0b0f14"/>
+  <rect width="660" height="972" rx="14" fill="#0b0f14"/>
   <rect width="660" height="40" rx="14" fill="#11161d"/>
   <rect y="26" width="660" height="14" fill="#11161d"/>
   <circle cx="26" cy="20" r="6" fill="#ff5f57"/>
   <circle cx="48" cy="20" r="6" fill="#febc2e"/>
   <circle cx="70" cy="20" r="6" fill="#28c840"/>
   <text x="92" y="26" class="dim" font-size="14">motion-bar</text>
-  <text x="24" y="80"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 motion_bar.py demo/slop.css demo/slop.html</tspan></text>
+  <text x="24" y="80"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 -m motion_bar demo/slop.css demo/slop.html</tspan></text>
   <text x="24" y="112" class="dim">motion-bar report</text>
   <text x="24" y="144" class="dim">target: demo/slop.css, demo/slop.html</text>
   <text x="24" y="176" class="bad">ease-in: FAIL</text>
   <text x="24" y="208" class="dim">  - [1] ease-in easing</text>
   <text x="24" y="240" class="dim">      found: transition: opacity 200ms ease-in;</text>
-  <text x="24" y="272" class="dim">  - [6] 900ms exceeds the modal ceiling of 500ms and the 70…</text>
-  <text x="24" y="304" class="dim">      found: transition: transform 900ms ease-out;</text>
-  <text x="24" y="336" class="dim">      at:    demo/slop.css:32</text>
-  <text x="24" y="368" class="bad">FAIL: 13 finding(s) across 11 rules (7 blocking)</text>
-  <text x="24" y="400"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 motion_bar.py demo/clean.css</tspan></text>
-  <text x="24" y="432" class="dim">motion-bar report</text>
-  <text x="24" y="464" class="good">target: demo/clean.css</text>
-  <text x="24" y="496" class="good">no-reduced-motion: PASS</text>
-  <text x="24" y="528" class="good">PASS: 0 finding(s) across 11 rules (0 blocking)</text>
+  <text x="24" y="272" class="dim">      at:    demo/slop.css:6</text>
+  <text x="24" y="304" class="bad">transition-all: FAIL</text>
+  <text x="24" y="336" class="dim">  - [2] unbounded transition-all</text>
+  <text x="24" y="368" class="dim">      found: transition: all 250ms ease-out;</text>
+  <text x="24" y="400" class="dim">      at:    demo/slop.css:11</text>
+  <text x="24" y="432" class="bad">scale-zero: FAIL</text>
+  <text x="24" y="464" class="dim">  - [3] entrance/exit from scale(0)</text>
+  <text x="24" y="496" class="dim">      found: transform: scale(0);</text>
+  <text x="24" y="528" class="dim">      at:    demo/slop.css:16</text>
+  <text x="24" y="560" class="dim">scale-zero-prop: WARN</text>
+  <text x="24" y="592" class="dim">  - [4] scale: 0 as a property value</text>
+  <text x="24" y="624" class="dim">      found: .badge-variant { scale: 0; transition: transfo…</text>
+  <text x="24" y="656" class="dim">      at:    demo/slop.html:6</text>
+  <text x="24" y="688" class="dim">layout-prop: WARN</text>
+  <text x="24" y="720" class="dim">  - [5] transition on a layout property triggers layout and…</text>
+  <text x="24" y="752" class="dim">      found: transition: width 300ms ease-in-out;</text>
+  <text x="24" y="784" class="dim">      at:    demo/slop.css:27</text>
+  <text x="24" y="816" class="bad">duration-ceiling: FAIL</text>
+  <text x="24" y="848" class="dim">  - [6] 900ms exceeds the modal ceiling of 500ms and the 70…</text>
+  <text x="24" y="880" class="dim">      found: transition: transform 900ms ease-out;</text>
+  <text x="24" y="912" class="dim">      at:    demo/slop.css:32</text>
+  <text x="24" y="944" class="dim">  - [6] 2000ms exceeds the default ceiling of 300ms and the…</text>
 </svg>
