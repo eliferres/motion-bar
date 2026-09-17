@@ -22,7 +22,6 @@ TRANSCRIPT = ROOT / "demo" / "transcript.json"
 SVG = ROOT / "demo" / "terminal.svg"
 CHECKOUT = "/path/to/checkout"
 SVG_NS = {"svg": "http://www.w3.org/2000/svg"}
-FIRST_CONTENT_Y = 80  # rows above this are the window chrome, not session text
 ELLIPSIS = "…"
 COPY_SKIPS = shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", "build", "dist")
 
@@ -95,9 +94,8 @@ def svg_rows() -> list:
     root = ET.parse(SVG).getroot()
     rows = []
     for text_el in root.findall("svg:text", SVG_NS):
-        y = text_el.get("y")
-        if y is None or int(y) < FIRST_CONTENT_Y:
-            continue
+        if text_el.get("font-size"):
+            continue  # the window title bar, the one row with its own size
         tspans = text_el.findall("svg:tspan", SVG_NS)
         if tspans:
             rows.append(("cmd", tspans[-1].text or ""))
