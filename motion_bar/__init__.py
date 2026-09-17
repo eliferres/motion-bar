@@ -98,13 +98,15 @@ class Finding:
     """One rule violation, carrying the evidence that proves it."""
 
     def __init__(self, rule: str, message: str, evidence: str,
-                 path: str, line: int, blocking: bool) -> None:
+                 path: str, line: int, blocking: Optional[bool] = None) -> None:
         self.rule = rule
         self.message = message
         self.evidence = evidence
         self.path = path
         self.line = line
-        self.blocking = blocking
+        # BLOCKING_RULES is the list; duration-ceiling is the one rule whose
+        # blocking depends on the measured value, so it passes its own answer.
+        self.blocking = rule in BLOCKING_RULES if blocking is None else blocking
 
 
 def load_rules(path: Path) -> dict:
@@ -158,11 +160,11 @@ def collect_files(paths: list, changed_path: Optional[str]) -> list:
 
 
 def scan_simple(rule: str, rx: re.Pattern, why: str, path: str,
-                 raw: str, text: str, blocking: bool) -> Iterator[Finding]:
+                 raw: str, text: str) -> Iterator[Finding]:
     for m in rx.finditer(text):
         ln = line_of(text, m.start())
         evidence = raw.splitlines()[ln - 1].strip() if ln <= len(raw.splitlines()) else m.group(0)
-        yield Finding(rule, why, evidence, path, ln, blocking)
+        yield Finding(rule, why, evidence, path, ln)
 
 
 def scan_layout_prop(path: str, raw: str, text: str) -> Iterator[Finding]:
@@ -171,7 +173,7 @@ def scan_layout_prop(path: str, raw: str, text: str) -> Iterator[Finding]:
         ln = line_of(text, m.start())
         why = "transition on a layout property triggers layout and paint; animate transform/opacity instead"
         yield Finding("layout-prop", why, lines[ln - 1].strip() if ln <= len(lines) else m.group(0),
-                       path, ln, False)
+                       path, ln)
     for kf in KEYFRAMES_BLOCK.finditer(text):
         block = kf.group(1)
         offset = kf.start(1)
@@ -179,7 +181,7 @@ def scan_layout_prop(path: str, raw: str, text: str) -> Iterator[Finding]:
             ln = line_of(text, offset + m.start())
             why = "@keyframes animates a layout property; animate transform/opacity instead"
             yield Finding("layout-prop", why, lines[ln - 1].strip() if ln <= len(lines) else m.group(0),
-                           path, ln, False)
+                           path, ln)
 
 
 def scan_duration_ceiling(path: str, raw: str, text: str, cfg: dict) -> Iterator[Finding]:
@@ -232,7 +234,7 @@ def scan_linear_easing(path: str, raw: str, text: str, cfg: dict) -> Iterator[Fi
         ln = line_of(text, m.start())
         why = "linear easing on movement (linear is for constant motion only: marquees, progress bars)"
         yield Finding("linear-easing", why, lines[ln - 1].strip() if ln <= len(lines) else m.group(0),
-                       path, ln, False)
+                       path, ln)
 
 
 def scan_high_frequency(path: str, raw: str, text: str, cfg: dict) -> Iterator[Finding]:
@@ -245,7 +247,7 @@ def scan_high_frequency(path: str, raw: str, text: str, cfg: dict) -> Iterator[F
         ln = line_of(text, m.start())
         why = "animation on an element triggered 100+ times a day (keyboard shortcut, palette, row hover): remove it"
         yield Finding("high-frequency-animation", why,
-                       lines[ln - 1].strip() if ln <= len(lines) else m.group(0), path, ln, True)
+                       lines[ln - 1].strip() if ln <= len(lines) else m.group(0), path, ln)
 
 
 def scan_infinite_loop(path: str, raw: str, text: str, cfg: dict) -> Iterator[Finding]:
@@ -258,7 +260,7 @@ def scan_infinite_loop(path: str, raw: str, text: str, cfg: dict) -> Iterator[Fi
         ln = line_of(text, m.start())
         why = "infinite animation outside a loading indicator"
         yield Finding("infinite-loop", why, lines[ln - 1].strip() if ln <= len(lines) else m.group(0),
-                       path, ln, False)
+                       path, ln)
 
 
 def scan_reduced_motion(files_text: dict) -> Iterator[Finding]:
@@ -266,7 +268,7 @@ def scan_reduced_motion(files_text: dict) -> Iterator[Finding]:
     reduced_seen = any(REDUCED_MOTION.search(t) for t in files_text.values())
     if motion_seen and not reduced_seen:
         why = "motion exists in the scanned set but prefers-reduced-motion appears nowhere"
-        yield Finding("no-reduced-motion", why, "", "(scanned set)", 0, False)
+        yield Finding("no-reduced-motion", why, "", "(scanned set)", 0)
 
 
 def scan_file(path: Path, cfg: dict) -> list:
@@ -274,19 +276,19 @@ def scan_file(path: Path, cfg: dict) -> list:
     text = strip_comments(raw)
     p = str(path)
     findings = []
-    findings += list(scan_simple("ease-in", EASE_IN, RULE_TITLES["ease-in"], p, raw, text, True))
+    findings += list(scan_simple("ease-in", EASE_IN, RULE_TITLES["ease-in"], p, raw, text))
     findings += list(scan_simple("transition-all", TRANSITION_ALL, RULE_TITLES["transition-all"],
-                                  p, raw, text, True))
-    findings += list(scan_simple("scale-zero", SCALE_ZERO, RULE_TITLES["scale-zero"], p, raw, text, True))
+                                  p, raw, text))
+    findings += list(scan_simple("scale-zero", SCALE_ZERO, RULE_TITLES["scale-zero"], p, raw, text))
     findings += list(scan_simple("scale-zero-prop", SCALE_ZERO_PROP, RULE_TITLES["scale-zero-prop"],
-                                  p, raw, text, False))
+                                  p, raw, text))
     findings += list(scan_layout_prop(p, raw, text))
     findings += list(scan_duration_ceiling(p, raw, text, cfg))
     findings += list(scan_linear_easing(p, raw, text, cfg))
     findings += list(scan_high_frequency(p, raw, text, cfg))
     findings += list(scan_infinite_loop(p, raw, text, cfg))
     findings += list(scan_simple("framer-shorthand", FRAMER_SHORTHAND, RULE_TITLES["framer-shorthand"],
-                                  p, raw, text, False))
+                                  p, raw, text))
     return findings
 
 

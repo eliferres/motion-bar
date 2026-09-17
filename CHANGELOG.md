@@ -12,6 +12,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   command that carries its default rules with it.
 - `--version` prints the version and exits 0.
 
+### Fixed
+
+- Which rules block is now decided in one place, so the report and the
+  documented list cannot drift apart. The README names the blocking rules.
+
 ### Changed
 
 - `motion_bar.py` and `config/rules.json` are now the package `motion_bar/`,

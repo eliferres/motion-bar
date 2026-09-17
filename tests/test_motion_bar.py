@@ -15,6 +15,9 @@ import unittest
 from pathlib import Path
 from typing import Optional
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import motion_bar  # noqa: E402  (the checkout root, not an install)
+
 ROOT = Path(__file__).parent.parent
 FIXTURES = Path(__file__).parent / "fixtures"
 CLEAN = FIXTURES / "clean.css"
@@ -130,6 +133,31 @@ class TestKeyframesLayoutProp(unittest.TestCase):
         report = run_json(ROOT / "demo" / "slop.css")
         findings = report["rules"]["layout-prop"]["findings"]
         self.assertTrue(any("slop.css" in f["file"] for f in findings))
+
+
+class TestBlockingRules(unittest.TestCase):
+    """Which rules block is decided by BLOCKING_RULES alone, and that set is
+    the list the README documents."""
+
+    DOCUMENTED = {"ease-in", "transition-all", "scale-zero", "high-frequency-animation"}
+
+    def test_blocking_rules_constant_is_the_documented_list(self) -> None:
+        self.assertEqual(motion_bar.BLOCKING_RULES, self.DOCUMENTED)
+
+    def test_reported_blocking_matches_the_documented_list(self) -> None:
+        report = run_json(FIXTURES)
+        report["rules"]["no-reduced-motion"] = run_json(
+            FIXTURES / "no-reduced-motion.css")["rules"]["no-reduced-motion"]
+        for rule, body in report["rules"].items():
+            self.assertTrue(body["findings"], f"{rule} did not fire on the fixtures")
+            for finding in body["findings"]:
+                if rule == "duration-ceiling":
+                    # the one rule whose blocking depends on the measured value
+                    expected = "hard ceiling" in finding["message"]
+                else:
+                    expected = rule in self.DOCUMENTED
+                self.assertEqual(finding["blocking"], expected,
+                                 f"{rule}: {finding['message']}")
 
 
 class TestConstantMotionIsExempt(unittest.TestCase):
