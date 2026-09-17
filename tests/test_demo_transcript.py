@@ -72,19 +72,55 @@ class TestDemoTranscript(unittest.TestCase):
                 self.assertEqual(replayed["out"], recorded["out"])
                 self.assertEqual(replayed["status"], recorded["status"])
 
-    def test_picture_rows_come_from_the_transcript(self) -> None:
-        cmds = [e["cmd"] for e in self.recorded]
-        out_lines = [line for e in self.recorded for line in e["out"].splitlines()]
-        for kind, row in svg_rows():
-            with self.subTest(row=row):
-                shown = row[:-1] if row.endswith(ELLIPSIS) else row
-                if kind == "cmd":
-                    chunk = shown[:-2] if shown.endswith(" \\") else shown
-                    self.assertTrue(any(chunk in cmd for cmd in cmds),
-                                    f"command row is in no transcript command: {row!r}")
-                else:
-                    self.assertTrue(any(line.startswith(shown) for line in out_lines),
-                                    f"output row is in no transcript output: {row!r}")
+    def test_the_picture_shows_whole_entries_in_order(self) -> None:
+        """No row invented, none missing, none out of order.
+
+        The transcript is walked in step with the drawing: a command's rows
+        must rejoin to the recorded command, every one of its non-empty output
+        lines must be the next row, and the picture may stop only between
+        commands, with nothing drawn left over.
+        """
+        rows = svg_rows()
+        self.assertTrue(rows, "the picture has no session rows")
+        index = 0
+        for entry in self.recorded:
+            if index == len(rows):
+                break  # the picture holds whole entries, then stops
+            kind, text = rows[index]
+            self.assertEqual(kind, "cmd", f"row {index + 1} should open {entry['cmd']}")
+            chunks = [text]
+            index += 1
+            while index < len(rows) and rows[index][0] == "cmd-cont":
+                chunks.append(rows[index][1])
+                index += 1
+            self.assertEqual(rejoin(chunks), entry["cmd"],
+                             "the command rows do not rebuild the recorded command")
+            for line in (l for l in entry["out"].splitlines() if l.strip()):
+                self.assertLess(index, len(rows),
+                                f"the picture stops inside {entry['cmd']}, before {line!r}")
+                kind, shown = rows[index]
+                self.assertEqual(kind, "out", f"row {index + 1} should be output line {line!r}")
+                self.assertTrue(shows_whole(shown, line),
+                                f"row {index + 1} is {shown!r}, expected {line!r} whole or "
+                                "end-trimmed with one ellipsis")
+                index += 1
+        self.assertEqual(index, len(rows),
+                         f"{len(rows) - index} drawn row(s) the transcript does not account for")
+
+
+def rejoin(chunks: list) -> str:
+    """Undo the drawing's wrapping: a wrapped row ends in " \\" and the chunks
+    rejoin with the one space the break ate."""
+    return " ".join(c[:-2] if c.endswith(" \\") else c for c in chunks)
+
+
+def shows_whole(shown: str, line: str) -> bool:
+    """A row is the output line itself, or that line cut once at the end."""
+    if shown == line:
+        return True
+    head = shown[: -len(ELLIPSIS)]
+    return (shown.endswith(ELLIPSIS) and shown.count(ELLIPSIS) == 1
+            and len(head) < len(line) and line.startswith(head))
 
 
 def svg_rows() -> list:
@@ -100,7 +136,7 @@ def svg_rows() -> list:
         if tspans:
             rows.append(("cmd", tspans[-1].text or ""))
         elif text_el.get("class") == "cmd":
-            rows.append(("cmd", (text_el.text or "")[4:]))
+            rows.append(("cmd-cont", (text_el.text or "")[4:]))
         else:
             rows.append(("out", text_el.text or ""))
     return rows
