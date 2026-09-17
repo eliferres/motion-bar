@@ -22,6 +22,8 @@ import sys
 from pathlib import Path
 from typing import Iterator, Optional
 
+__version__ = "1.0.0"
+
 DEFAULT_RULES_PATH = Path(__file__).parent / "rules.json"
 UI_EXT = {".css", ".scss", ".less", ".sass", ".html", ".htm", ".js", ".jsx",
           ".ts", ".tsx", ".mjs", ".cjs", ".vue", ".svelte"}
@@ -359,14 +361,15 @@ def parse_args(argv: list) -> argparse.Namespace:
     parser.add_argument("--rules", default=str(DEFAULT_RULES_PATH), help="path to rules.json")
     parser.add_argument("--changed", help="file containing a newline list of changed paths")
     parser.add_argument("--json", action="store_true", help="emit JSON instead of the text report")
+    parser.add_argument("--version", action="version", version=f"motion-bar {__version__}")
     args = parser.parse_args(argv)
     if not args.paths and not args.changed:
         parser.error("give at least one path, or use --changed")
     return args
 
 
-def main() -> None:
-    args = parse_args(sys.argv[1:])
+def main(argv: Optional[list] = None) -> None:
+    args = parse_args(sys.argv[1:] if argv is None else argv)
     try:
         cfg = load_rules(Path(args.rules))
         files = collect_files(args.paths, args.changed)

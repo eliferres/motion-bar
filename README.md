@@ -8,6 +8,16 @@ Motion is the first thing a page gets wrong and the last thing anyone reviews. m
 
 ## Quick start
 
+Install it and scan a directory:
+
+```bash
+pipx install git+https://github.com/eliferres/motion-bar
+motion-bar src/
+```
+
+The default rules ship with the install, so a scan works from any
+directory. Or clone the repo and run it against the demo files:
+
 ```bash
 git clone https://github.com/eliferres/motion-bar.git
 cd motion-bar

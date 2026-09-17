@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "motion-bar"
+dynamic = ["version"]
+description = "A static scan of UI code for the motion violations a reviewer would flag"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Eli Ferres" }]
+
+[project.urls]
+Source = "https://github.com/eliferres/motion-bar"
+Changelog = "https://github.com/eliferres/motion-bar/blob/main/CHANGELOG.md"
+
+[project.scripts]
+motion-bar = "motion_bar:main"
+
+[tool.setuptools]
+packages = ["motion_bar"]
+
+[tool.setuptools.package-data]
+motion_bar = ["rules.json"]
+
+[tool.setuptools.dynamic]
+version = { attr = "motion_bar.__version__" }
