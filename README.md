@@ -11,8 +11,8 @@ Motion is the first thing a page gets wrong and the last thing anyone reviews. m
 ```bash
 git clone https://github.com/eliferres/motion-bar.git
 cd motion-bar
-python3 motion_bar.py demo/clean.css
-python3 motion_bar.py demo/slop.css demo/slop.html
+python3 -m motion_bar demo/clean.css
+python3 -m motion_bar demo/slop.css demo/slop.html
 ```
 
 Zero dependencies, Python 3.9+, no network needed. `demo/clean.css`
@@ -26,7 +26,7 @@ because a planted violation can overlap another rule's check, for
 Run the failing pair:
 
 ```bash
-python3 motion_bar.py demo/slop.css demo/slop.html
+python3 -m motion_bar demo/slop.css demo/slop.html
 ```
 
 Each rule prints its own PASS/WARN/FAIL block, with the exact string
@@ -52,7 +52,7 @@ FAIL: 13 finding(s) across 11 rules (7 blocking)
 Now the clean file:
 
 ```bash
-python3 motion_bar.py demo/clean.css
+python3 -m motion_bar demo/clean.css
 echo "exit: $?"
 ```
 
@@ -60,7 +60,7 @@ echo "exit: $?"
 for CI or a dashboard:
 
 ```bash
-python3 motion_bar.py demo/slop.css --json
+python3 -m motion_bar demo/slop.css --json
 ```
 
 Scan whatever changed instead of walking the whole tree by passing a
@@ -68,12 +68,12 @@ newline-separated file list:
 
 ```bash
 git diff --name-only origin/main...HEAD > /tmp/changed.txt
-python3 motion_bar.py --changed /tmp/changed.txt
+python3 -m motion_bar --changed /tmp/changed.txt
 ```
 
 ## The rules
 
-Every ceiling and selector list below lives in `config/rules.json`, not
+Every ceiling and selector list below lives in `motion_bar/rules.json`, not
 in the code, so grading a different codebase means editing numbers, not
 regexes.
 
@@ -98,7 +98,7 @@ Rules informed by Emil Kowalski's published animation guidance
 
 ```yaml
 - name: motion-bar
-  run: python3 motion_bar.py src/
+  run: python3 -m motion_bar src/
 ```
 
 Exit 1 fails the job. Point it at a diff instead of the whole tree with
@@ -117,7 +117,7 @@ Exit 1 fails the job. Point it at a diff instead of the whole tree with
 - A hand-rolled ease-in-shaped `cubic-bezier()` passes; only the literal
   `ease-in` keyword and easing name are checked.
 - Font, motion, and selector matching is keyword-based against the
-  lists in `config/rules.json`. A codebase with different naming
+  lists in `motion_bar/rules.json`. A codebase with different naming
   conventions needs its own list, not a different tool.
 
 ## License
