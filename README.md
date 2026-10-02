@@ -2,7 +2,10 @@
 
 Motion is the first thing a page gets wrong and the last thing anyone reviews. motion-bar is a static scan of UI code for the violations a reviewer would flag: durations past the ceiling, the wrong easing for the gesture, animation on things people trigger a hundred times a day. Named rules, exit codes for CI, no browser.
 
-![ci](https://github.com/eliferres/motion-bar/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/eliferres/motion-bar/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)
+![Dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
 
 <img src="demo/terminal.svg" width="660" alt="Terminal session showing motion-bar scanning one demo file: every rule reports, two warn, one fails, and the run ends on a FAIL summary of four findings.">
 
