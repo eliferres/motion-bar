@@ -159,6 +159,35 @@ other rule warns. Any finding, blocking or not, exits 1.
 Rules informed by Emil Kowalski's published animation guidance
 (github.com/emilkowalski/skills, MIT License; see `NOTICE`).
 
+## Allowing one line on purpose
+
+Sometimes the rule is right in general and wrong for one line: an
+`ease-in` that matches a native sheet dismissal, a demo that needs the
+Framer shorthand. Say so in a comment on that line, naming the rule and
+the reason:
+
+```css
+.sheet { transition: transform 200ms ease-in; } /* motion-bar-allow: ease-in matches the native sheet dismissal */
+```
+
+The finding leaves the rule's verdict, and the report lists it with its
+reason and counts it on the closing line:
+
+```text
+allowed by comment:
+  - [1] ease-in at sheet.css:1: matches the native sheet dismissal
+
+PASS: 0 finding(s) across 11 rules (0 blocking), 1 allowed
+```
+
+One comment silences one rule on its own line and nothing else: another
+rule firing on the same line still reports, and the line below is not
+covered. A comment with no reason silences nothing. The marker counts
+only inside a comment (`/* */`, `//`, `<!-- -->` or a JSX `{/* */}`),
+so the same words in a string or an attribute do nothing. `--json`
+carries the list under `allowed` and the count under
+`summary.allowed`.
+
 ## In CI
 
 ```yaml
@@ -179,6 +208,8 @@ Exit 1 fails the job. Point it at a diff instead of the whole tree with
   a text window around the match, not a real parse tree. A class name
   chosen well can dodge a rule it should trip, and an unrelated keyword
   sitting nearby can trip one it should not.
+- `no-reduced-motion` is a finding about the whole scanned set, not a
+  line, so no allow comment can silence it.
 - A hand-rolled ease-in-shaped `cubic-bezier()` passes; only the literal
   `ease-in` keyword and easing name are checked.
 - Font, motion, and selector matching is keyword-based against the

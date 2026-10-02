@@ -7,6 +7,9 @@
 - Installable with pipx or pip from the repository, giving a `motion-bar`
   command that carries its default rules with it.
 - `--version` prints the version and exits 0.
+- A `motion-bar-allow: <rule> <reason>` comment silences one rule on its own
+  line. Allowed findings are listed with their reasons, counted on the closing
+  line, and carried in `--json` under `allowed` and `summary.allowed`.
 
 ### Fixed
 

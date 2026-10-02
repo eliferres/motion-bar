@@ -93,6 +93,14 @@ REDUCED_MOTION = re.compile(r'prefers-reduced-motion|useReducedMotion', I)
 STRIP = [re.compile(r'/\*.*?\*/', re.S), re.compile(r'<!--.*?-->', re.S),
          re.compile(r'(?<![:"\'\w(,/])//[^\n]*')]
 
+# An intended exception, written where the code is: a comment carrying
+# `motion-bar-allow: <rule> <reason>` silences that one rule on that one
+# line. The marker counts only after a comment opener, so the same words in
+# a string or an attribute do nothing, and a missing reason silences nothing.
+ALLOW = re.compile(
+    r'(?:/\*|<!--|(?<![:"\'\w(,/])//)[^\n]*?motion-bar-allow:[ \t]*([\w-]+)[ \t]+(.*)')
+ALLOW_TAIL = re.compile(r'\s*(?:\*/\s*\}?|-->).*$')
+
 
 class Finding:
     """One rule violation, carrying the evidence that proves it."""
@@ -138,6 +146,19 @@ def context_window(text: str, pos: int) -> str:
 
 def has_any(window: str, keywords: list) -> bool:
     return any(kw in window for kw in keywords)
+
+
+def allows_in(raw: str) -> dict:
+    """{(rule, line): reason} for every allow comment in one file."""
+    found = {}
+    for ln, line in enumerate(raw.splitlines(), 1):
+        m = ALLOW.search(line)
+        if not m:
+            continue
+        reason = ALLOW_TAIL.sub("", m.group(2)).strip()
+        if reason:
+            found[(m.group(1), ln)] = reason
+    return found
 
 
 def collect_files(paths: list, changed_path: Optional[str]) -> list:
@@ -303,23 +324,34 @@ def dedupe(findings: list) -> list:
     return unique
 
 
-def run_scan(files: list, cfg: dict) -> list:
+def run_scan(files: list, cfg: dict) -> tuple:
+    """(findings, allowed): allowed holds (finding, reason) for each finding
+    an allow comment silenced."""
     all_findings = []
     files_text = {}
+    allows = {}
     for path in files:
         raw = path.read_text(encoding="utf-8", errors="replace")
         text = strip_comments(raw)
         files_text[str(path)] = text
+        allows[str(path)] = allows_in(raw)
         all_findings += scan_file(path, raw, text, cfg)
     all_findings += list(scan_reduced_motion(files_text))
-    return dedupe(all_findings)
+    findings, allowed = [], []
+    for f in dedupe(all_findings):
+        reason = allows.get(f.path, {}).get((f.rule, f.line))
+        if reason:
+            allowed.append((f, reason))
+        else:
+            findings.append(f)
+    return findings, allowed
 
 
 def rule_number(name: str) -> int:
     return next(n for n, rn in RULE_NAMES.items() if rn == name)
 
 
-def build_report(files: list, findings: list) -> str:
+def build_report(files: list, findings: list, allowed: list) -> str:
     lines = ["motion-bar report", "target: " + ", ".join(str(f) for f in files)]
     by_rule = {name: [f for f in findings if f.rule == name] for name in RULE_NAMES.values()}
     for name in RULE_NAMES.values():
@@ -335,13 +367,18 @@ def build_report(files: list, findings: list) -> str:
                 lines.append(f"      found: {f.evidence}")
             at = f.path if not f.line else f"{f.path}:{f.line}"
             lines.append(f"      at:    {at}")
+    if allowed:
+        lines.append("\nallowed by comment:")
+        for f, reason in allowed:
+            lines.append(f"  - [{rule_number(f.rule)}] {f.rule} at {f.path}:{f.line}: {reason}")
     blocking = sum(1 for f in findings if f.blocking)
+    extra = f", {len(allowed)} allowed" if allowed else ""
     lines.append(f"\n{'FAIL' if findings else 'PASS'}: {len(findings)} finding(s) "
-                 f"across {len(RULE_NAMES)} rules ({blocking} blocking)")
+                 f"across {len(RULE_NAMES)} rules ({blocking} blocking){extra}")
     return "\n".join(lines)
 
 
-def build_json(files: list, findings: list) -> dict:
+def build_json(files: list, findings: list, allowed: list) -> dict:
     rules = {}
     for name in RULE_NAMES.values():
         rows = [f for f in findings if f.rule == name]
@@ -352,8 +389,11 @@ def build_json(files: list, findings: list) -> dict:
                           "line": r.line, "blocking": r.blocking} for r in rows],
         }
     return {"target": [str(f) for f in files], "rules": rules,
+            "allowed": [{"rule": f.rule, "file": f.path, "line": f.line, "reason": reason,
+                         "evidence": f.evidence} for f, reason in allowed],
             "summary": {"findings": len(findings), "rules_checked": len(RULE_NAMES),
-                        "blocking": sum(1 for f in findings if f.blocking)}}
+                        "blocking": sum(1 for f in findings if f.blocking),
+                        "allowed": len(allowed)}}
 
 
 def parse_args(argv: list) -> argparse.Namespace:
@@ -377,9 +417,9 @@ def main(argv: Optional[list] = None) -> None:
     except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
         print(f"motion-bar: {e}", file=sys.stderr)
         sys.exit(2)
-    findings = run_scan(files, cfg)
+    findings, allowed = run_scan(files, cfg)
     if args.json:
-        print(json.dumps(build_json(files, findings), indent=2))
+        print(json.dumps(build_json(files, findings, allowed), indent=2))
     else:
-        print(build_report(files, findings))
+        print(build_report(files, findings, allowed))
     sys.exit(1 if findings else 0)

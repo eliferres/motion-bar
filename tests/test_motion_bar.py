@@ -12,6 +12,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 import unittest.mock
 from collections import Counter
@@ -285,6 +286,66 @@ class TestDirectoryWalk(unittest.TestCase):
         self.assertIn("clean.css", result.stdout)
         self.assertIn("slop.css", result.stdout)
         self.assertEqual(result.returncode, 1)  # slop.css is in the mix
+
+
+class TestAllowComment(unittest.TestCase):
+    """`motion-bar-allow: <rule> <reason>` in a comment silences one rule on its own line."""
+
+    REDUCED = "@media (prefers-reduced-motion: reduce) { .x { transition: none; } }\n"
+
+    def scan(self, body: str, suffix: str = ".css", *extra: str) -> subprocess.CompletedProcess:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / f"probe{suffix}"
+            path.write_text(body + self.REDUCED, encoding="utf-8")
+            return run([str(path), *extra])
+
+    def test_allow_with_rule_and_reason_silences_that_rule_and_is_counted(self) -> None:
+        result = self.scan(".sheet { transition: transform 200ms ease-in; } "
+                           "/* motion-bar-allow: ease-in matches the native sheet dismissal */\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("ease-in: PASS", result.stdout)
+        self.assertIn("matches the native sheet dismissal", result.stdout)
+        self.assertIn("PASS: 0 finding(s) across 11 rules (0 blocking), 1 allowed", result.stdout)
+
+    def test_allow_names_one_rule_and_leaves_the_others_firing(self) -> None:
+        result = self.scan(".a { transition: all 200ms ease-in; } "
+                           "/* motion-bar-allow: ease-in legacy curve */\n")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("transition-all: FAIL", result.stdout)
+        self.assertIn("ease-in: PASS", result.stdout)
+
+    def test_allow_covers_only_its_own_line(self) -> None:
+        result = self.scan("/* motion-bar-allow: ease-in legacy curve */\n"
+                           ".a { transition: opacity 200ms ease-in; }\n")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("ease-in: FAIL", result.stdout)
+
+    def test_allow_without_a_reason_silences_nothing(self) -> None:
+        result = self.scan(".a { transition: opacity 200ms ease-in; } /* motion-bar-allow: ease-in */\n")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("ease-in: FAIL", result.stdout)
+
+    def test_allow_outside_a_comment_silences_nothing(self) -> None:
+        result = self.scan('<div class="a" data-note="motion-bar-allow: ease-in nope" '
+                           'style="transition: opacity 200ms ease-in"></div>\n', ".html")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("ease-in: FAIL", result.stdout)
+
+    def test_allowed_findings_are_reported_in_json(self) -> None:
+        result = self.scan(".a { transition: opacity 200ms ease-in; } "
+                           "/* motion-bar-allow: ease-in brand curve */\n", ".css", "--json")
+        report = json.loads(result.stdout)
+        self.assertEqual(report["summary"]["findings"], 0)
+        self.assertEqual(report["summary"]["allowed"], 1)
+        self.assertEqual(report["allowed"][0]["rule"], "ease-in")
+        self.assertEqual(report["allowed"][0]["reason"], "brand curve")
+        self.assertEqual(report["rules"]["ease-in"]["verdict"], "PASS")
+
+    def test_a_jsx_comment_allows_too(self) -> None:
+        result = self.scan('<motion.div animate={{ x: 40 }} /> {/* motion-bar-allow: framer-shorthand one-off demo */}\n',
+                           ".jsx")
+        self.assertIn("framer-shorthand: PASS", result.stdout)
+        self.assertIn("1 allowed", result.stdout)
 
 
 if __name__ == "__main__":
