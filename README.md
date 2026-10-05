@@ -168,10 +168,13 @@ the reason:
 
 ```css
 .sheet { transition: transform 200ms ease-in; } /* motion-bar-allow: ease-in matches the native sheet dismissal */
+@media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
 ```
 
-The finding leaves the rule's verdict, and the report lists it with its
-reason and counts it on the closing line:
+The second line is the reduced-motion guard any file with motion needs
+to pass `no-reduced-motion`. The allowed finding leaves the rule's
+verdict, and the report lists it with its reason and counts it on the
+closing line:
 
 ```text
 allowed by comment:

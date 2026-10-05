@@ -341,6 +341,17 @@ class TestAllowComment(unittest.TestCase):
         self.assertEqual(report["allowed"][0]["reason"], "brand curve")
         self.assertEqual(report["rules"]["ease-in"]["verdict"], "PASS")
 
+    def test_the_readme_example_passes_exactly_as_written(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        section = readme.split("## Allowing one line on purpose", 1)[1]
+        css = section.split("```css\n", 1)[1].split("```", 1)[0]
+        shown = section.split("```text\n", 1)[1].split("```", 1)[0].strip()
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "sheet.css").write_text(css, encoding="utf-8")
+            result = run(["sheet.css"], cwd=Path(tmp))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertTrue(result.stdout.rstrip().endswith(shown), result.stdout)
+
     def test_a_jsx_comment_allows_too(self) -> None:
         result = self.scan('<motion.div animate={{ x: 40 }} /> {/* motion-bar-allow: framer-shorthand one-off demo */}\n',
                            ".jsx")
