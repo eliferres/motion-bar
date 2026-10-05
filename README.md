@@ -185,7 +185,9 @@ PASS: 0 finding(s) across 11 rules (0 blocking), 1 allowed
 
 One comment silences one rule on its own line and nothing else: another
 rule firing on the same line still reports, and the line below is not
-covered. A comment with no reason silences nothing. The marker counts
+covered. Several allow comments on one line each count. A comment that
+names no rule (rule names are lowercase) or gives no reason silences
+nothing and prints a one-line hint on stderr naming the file and line. The marker counts
 only inside a comment (`/* */`, `//`, `<!-- -->` or a JSX `{/* */}`),
 so the same words in a string or an attribute do nothing. `--json`
 carries the list under `allowed` and the count under

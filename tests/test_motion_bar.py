@@ -361,6 +361,19 @@ class TestAllowComment(unittest.TestCase):
         self.assertIn("one property only changes", result.stdout)
         self.assertIn("2 allowed", result.stdout)
 
+    def test_a_malformed_allow_prints_a_one_line_hint(self) -> None:
+        cases = {
+            "Ease-in brand curve": 'names no rule "Ease-in" (did you mean ease-in?)',
+            "easein brand curve": 'names no rule "easein"',
+            "ease-in": "gives no reason, so it silences nothing",
+        }
+        for body, hint in cases.items():
+            result = self.scan(f".a {{ transition: opacity 200ms ease-in; }} /* motion-bar-allow: {body} */\n")
+            self.assertEqual(result.returncode, 1, body)
+            self.assertIn(hint, result.stderr, body)
+            self.assertRegex(result.stderr, r"^motion-bar: \S+probe\.css:1: ", body)
+            self.assertEqual(result.stderr.count("\n"), 1, body)
+
     def test_a_jsx_comment_allows_too(self) -> None:
         result = self.scan('<motion.div animate={{ x: 40 }} /> {/* motion-bar-allow: framer-shorthand one-off demo */}\n',
                            ".jsx")

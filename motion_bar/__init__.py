@@ -149,17 +149,25 @@ def has_any(window: str, keywords: list) -> bool:
     return any(kw in window for kw in keywords)
 
 
-def allows_in(raw: str) -> dict:
-    """{(rule, line): reason} for every allow comment in one file."""
-    found = {}
+def allows_in(raw: str) -> tuple:
+    """({(rule, line): reason}, [(line, hint)]) for the allow comments in one
+    file. A comment that cannot silence anything (an unknown rule name, no
+    reason) earns a hint instead, so a typo does not fail in silence."""
+    found, hints = {}, []
+    known = set(RULE_NAMES.values())
     for ln, line in enumerate(raw.splitlines(), 1):
         for m in ALLOW.finditer(line):
             if not COMMENT_OPEN.search(line, 0, m.start()):
                 continue
-            reason = m.group(2).strip()
-            if reason:
-                found[(m.group(1), ln)] = reason
-    return found
+            rule, reason = m.group(1), m.group(2).strip()
+            if rule not in known:
+                guess = f" (did you mean {rule.lower()}?)" if rule.lower() in known else ""
+                hints.append((ln, f'allow comment names no rule "{rule}"{guess}, so it silences nothing'))
+            elif not reason:
+                hints.append((ln, f"allow comment for {rule} gives no reason, so it silences nothing"))
+            else:
+                found[(rule, ln)] = reason
+    return found, hints
 
 
 def collect_files(paths: list, changed_path: Optional[str]) -> list:
@@ -326,16 +334,19 @@ def dedupe(findings: list) -> list:
 
 
 def run_scan(files: list, cfg: dict) -> tuple:
-    """(findings, allowed): allowed holds (finding, reason) for each finding
-    an allow comment silenced."""
+    """(findings, allowed, hints): allowed holds (finding, reason) for each
+    finding an allow comment silenced; hints holds one line per allow comment
+    that could not silence anything."""
     all_findings = []
     files_text = {}
     allows = {}
+    hints = []
     for path in files:
         raw = path.read_text(encoding="utf-8", errors="replace")
         text = strip_comments(raw)
         files_text[str(path)] = text
-        allows[str(path)] = allows_in(raw)
+        allows[str(path)], file_hints = allows_in(raw)
+        hints += [f"{path}:{ln}: {hint}" for ln, hint in file_hints]
         all_findings += scan_file(path, raw, text, cfg)
     all_findings += list(scan_reduced_motion(files_text))
     findings, allowed = [], []
@@ -345,7 +356,7 @@ def run_scan(files: list, cfg: dict) -> tuple:
             allowed.append((f, reason))
         else:
             findings.append(f)
-    return findings, allowed
+    return findings, allowed, hints
 
 
 def rule_number(name: str) -> int:
@@ -418,7 +429,9 @@ def main(argv: Optional[list] = None) -> None:
     except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
         print(f"motion-bar: {e}", file=sys.stderr)
         sys.exit(2)
-    findings, allowed = run_scan(files, cfg)
+    findings, allowed, hints = run_scan(files, cfg)
+    for hint in hints:
+        print(f"motion-bar: {hint}", file=sys.stderr)
     if args.json:
         print(json.dumps(build_json(files, findings, allowed), indent=2))
     else:

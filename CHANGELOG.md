@@ -9,7 +9,8 @@
 - `--version` prints the version and exits 0.
 - A `motion-bar-allow: <rule> <reason>` comment silences one rule on its own
   line. Allowed findings are listed with their reasons, counted on the closing
-  line, and carried in `--json` under `allowed` and `summary.allowed`.
+  line, and carried in `--json` under `allowed` and `summary.allowed`. A
+  comment naming an unknown rule or giving no reason prints a one-line hint.
 
 ### Fixed
 
