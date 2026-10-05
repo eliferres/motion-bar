@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 from typing import Iterator, Optional
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 DEFAULT_RULES_PATH = Path(__file__).parent / "rules.json"
 UI_EXT = {".css", ".scss", ".less", ".sass", ".html", ".htm", ".js", ".jsx",
