@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 800" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="16">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 800" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="16" xml:space="preserve">
   <title id="t">motion-bar demo terminal</title>
   <desc id="d">Terminal session showing motion-bar scanning one demo file: every rule reports, two warn, one fails, and the run ends on a FAIL summary of four findings.</desc>
   <style>
+    text { white-space: pre; }
     .p { fill: #7ee2a8; }
     .cmd { fill: #e8eef5; }
     .dim { fill: #9fb0c0; }
