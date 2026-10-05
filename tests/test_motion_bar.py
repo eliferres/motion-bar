@@ -352,6 +352,15 @@ class TestAllowComment(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertTrue(result.stdout.rstrip().endswith(shown), result.stdout)
 
+    def test_two_allow_comments_on_one_line_each_count(self) -> None:
+        result = self.scan(".a { transition: all 200ms ease-in; } "
+                           "/* motion-bar-allow: ease-in legacy curve */ "
+                           "/* motion-bar-allow: transition-all one property only changes */\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("legacy curve", result.stdout)
+        self.assertIn("one property only changes", result.stdout)
+        self.assertIn("2 allowed", result.stdout)
+
     def test_a_jsx_comment_allows_too(self) -> None:
         result = self.scan('<motion.div animate={{ x: 40 }} /> {/* motion-bar-allow: framer-shorthand one-off demo */}\n',
                            ".jsx")

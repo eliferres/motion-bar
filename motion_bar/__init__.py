@@ -97,9 +97,10 @@ STRIP = [re.compile(r'/\*.*?\*/', re.S), re.compile(r'<!--.*?-->', re.S),
 # `motion-bar-allow: <rule> <reason>` silences that one rule on that one
 # line. The marker counts only after a comment opener, so the same words in
 # a string or an attribute do nothing, and a missing reason silences nothing.
-ALLOW = re.compile(
-    r'(?:/\*|<!--|(?<![:"\'\w(,/])//)[^\n]*?motion-bar-allow:[ \t]*([\w-]+)[ \t]+(.*)')
-ALLOW_TAIL = re.compile(r'\s*(?:\*/\s*\}?|-->).*$')
+# Each marker on a line counts, so two rules can be allowed side by side;
+# a reason runs to the end of its comment or to the next marker.
+COMMENT_OPEN = re.compile(r'/\*|<!--|(?<![:"\'\w(,/])//')
+ALLOW = re.compile(r'motion-bar-allow:[ \t]*([\w-]+)[ \t]*(.*?)\s*(?=\*/|-->|motion-bar-allow:|$)')
 
 
 class Finding:
@@ -152,12 +153,12 @@ def allows_in(raw: str) -> dict:
     """{(rule, line): reason} for every allow comment in one file."""
     found = {}
     for ln, line in enumerate(raw.splitlines(), 1):
-        m = ALLOW.search(line)
-        if not m:
-            continue
-        reason = ALLOW_TAIL.sub("", m.group(2)).strip()
-        if reason:
-            found[(m.group(1), ln)] = reason
+        for m in ALLOW.finditer(line):
+            if not COMMENT_OPEN.search(line, 0, m.start()):
+                continue
+            reason = m.group(2).strip()
+            if reason:
+                found[(m.group(1), ln)] = reason
     return found
 
 
